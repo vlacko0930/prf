@@ -1,0 +1,65 @@
+<div class="container mt-4">
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Betöltés...</span>
+    </div>
+    <p class="mt-2">Eredmények betöltése...</p>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">{{ game?.title }} - Eredmények</h2>
+      </div>
+      <div class="card-body">
+        <div *ngIf="game?.quiz" class="mb-4">
+          <h4>{{ game?.quiz?.title }}</h4>
+          <p *ngIf="game?.quiz?.description">{{ game?.quiz?.description }}</p>
+        </div>
+
+        <div *ngIf="results && results.length > 0" class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Játékos</th>
+                <th>Pontszám</th>
+                <th>Helyes válaszok</th>
+                <th>Befejezve</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let result of results; let i = index" [class.table-success]="i === 0">
+                <td>{{ i + 1 }}</td>
+                <td>{{ result.player?.username || 'Ismeretlen játékos' }}</td>
+                <td>{{ result.score }}</td>
+                <td>
+                  {{ getCorrectAnswersCount(result) }} / {{ result.answers?.length || 0 }}
+                </td>
+                <td>
+                  <span *ngIf="result.completedAt">{{ result.completedAt | date:'yyyy.MM.dd. HH:mm:ss' }}</span>
+                  <span *ngIf="!result.completedAt">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="!results || results.length === 0" class="text-center py-4">
+          <p class="text-muted">Nincsenek még eredmények ebben a játékban.</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="d-flex justify-content-between">
+          <button class="btn btn-secondary" (click)="goToGameList()">
+            Vissza a játéklistához
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

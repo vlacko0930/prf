@@ -1,0 +1,283 @@
+.question-management {
+  padding: 20px;
+
+  h1 {
+    margin-bottom: 25px;
+    color: #333;
+    font-size: 28px;
+    border-bottom: 2px solid #3f51b5;
+    padding-bottom: 10px;
+  }
+
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+    .search-box {
+      width: 100%;
+      
+      input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        
+        &:focus {
+          outline: none;
+          border-color: #3f51b5;
+          box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+        }
+      }
+    }
+    
+    .filter-selects {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: flex-end;
+      
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 200px;
+        
+        label {
+          margin-bottom: 5px;
+          font-size: 14px;
+          color: #555;
+        }
+        
+        select {
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 16px;
+          background-color: white;
+          
+          &:focus {
+            outline: none;
+            border-color: #3f51b5;
+          }
+        }
+      }
+      
+      .reset-button {
+        padding: 10px 15px;
+        background: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        color: #555;
+        font-size: 14px;
+        cursor: pointer;
+        
+        &:hover {
+          background-color: #f5f5f5;
+        }
+      }
+    }
+    
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+      
+      button, a {
+        padding: 10px 15px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+      }
+      
+      .refresh-button {
+        background-color: #3f51b5;
+        color: white;
+        border: none;
+        
+        &:hover {
+          background-color: #303f9f;
+        }
+      }
+      
+      .create-button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        
+        &:hover {
+          background-color: #388e3c;
+        }
+      }
+    }
+  }
+
+  .questions-container {
+    .loading, .error-message, .no-results {
+      padding: 20px;
+      text-align: center;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .error-message {
+      color: #f44336;
+    }
+    
+    .questions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      
+      .question-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+        
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .question-header {
+          padding: 12px 15px;
+          background-color: #f8f8f8;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          
+          .question-category {
+            font-size: 14px;
+            font-weight: 500;
+            color: #3f51b5;
+          }
+          
+          .question-difficulty {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            
+            &.easy {
+              background-color: #e8f5e9;
+              color: #388e3c;
+            }
+            
+            &.medium {
+              background-color: #fff8e1;
+              color: #ffa000;
+            }
+            
+            &.hard {
+              background-color: #ffebee;
+              color: #d32f2f;
+            }
+          }
+        }
+        
+        .question-content {
+          padding: 15px;
+          flex-grow: 1;
+          
+          .question-text {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+          }
+          
+          .options-list {
+            .option-item {
+              display: flex;
+              padding: 8px 10px;
+              margin-bottom: 8px;
+              background-color: #f5f5f5;
+              border-radius: 4px;
+              
+              &:last-child {
+                margin-bottom: 0;
+              }
+              
+              &.correct {
+                background-color: #e8f5e9;
+                border-left: 3px solid #4caf50;
+              }
+              
+              .option-marker {
+                color: #4caf50;
+                font-weight: bold;
+                margin-right: 10px;
+                min-width: 15px;
+              }
+              
+              .option-text {
+                flex: 1;
+              }
+            }
+          }
+        }
+        
+        .question-footer {
+          padding: 12px 15px;
+          border-top: 1px solid #eee;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          
+          .question-id {
+            font-size: 12px;
+            color: #999;
+          }
+          
+          .question-actions {
+            display: flex;
+            gap: 10px;
+            
+            a, button {
+              padding: 6px 12px;
+              border-radius: 4px;
+              font-size: 13px;
+              font-weight: 500;
+              cursor: pointer;
+              text-decoration: none;
+            }
+            
+            .edit-button {
+              background-color: #3f51b5;
+              color: white;
+              border: none;
+              
+              &:hover {
+                background-color: #303f9f;
+              }
+            }
+            
+            .delete-button {
+              background-color: transparent;
+              color: #f44336;
+              border: 1px solid #f44336;
+              
+              &:hover {
+                background-color: #ffebee;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

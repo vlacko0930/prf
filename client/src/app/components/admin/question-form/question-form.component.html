@@ -1,0 +1,144 @@
+<div class="question-form">
+  <div class="form-header">
+    <button class="back-button" (click)="navigateBack()">← Vissza</button>
+    <h1>{{ editMode ? 'Kérdés szerkesztése' : 'Új kérdés létrehozása' }}</h1>
+  </div>
+  
+  <div *ngIf="isLoading" class="loading">
+    <p>Betöltés...</p>
+  </div>
+  
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+  
+  <div *ngIf="successMessage" class="success-message">
+    <p>{{ successMessage }}</p>
+  </div>
+  
+  <form *ngIf="!isLoading" [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="text">Kérdés szövege</label>
+      <textarea 
+        id="text" 
+        formControlName="text" 
+        rows="3"
+        [class.invalid]="questionForm.controls['text'].invalid && questionForm.controls['text'].touched"
+      ></textarea>
+      <div *ngIf="questionForm.controls['text'].invalid && questionForm.controls['text'].touched" class="error-hint">
+        <p *ngIf="questionForm.controls['text'].errors?.['required']">A kérdés szövege kötelező</p>
+        <p *ngIf="questionForm.controls['text'].errors?.['minlength']">A kérdésnek legalább 5 karakterből kell állnia</p>
+        <p *ngIf="questionForm.controls['text'].errors?.['maxlength']">A kérdés nem lehet hosszabb 300 karakternél</p>
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <!-- Kvízek kiválasztó mező (többszörös kiválasztás) -->
+      <div class="form-group">
+        <label for="quizzes">Kvízek (opcionális, többet is választhatsz)</label>
+        <select 
+          id="quizzes" 
+          formControlName="quizzes"
+          multiple
+          size="4"
+        >
+          <option *ngFor="let quiz of quizzes" [value]="quiz._id">{{ quiz.title }}</option>
+        </select>
+        <div class="field-hint">
+          <p>A kérdés létrehozható kvízhez rendelés nélkül is. Többet is kiválaszthatsz (Ctrl vagy Shift + kattintással).</p>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="category">Kategória</label>
+        <select 
+          id="category" 
+          formControlName="category"
+          [class.invalid]="questionForm.controls['category'].invalid && questionForm.controls['category'].touched"
+        >
+          <option value="">-- Válassz kategóriát --</option>
+          <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+        </select>
+        <div *ngIf="questionForm.controls['category'].invalid && questionForm.controls['category'].touched" class="error-hint">
+          <p *ngIf="questionForm.controls['category'].errors?.['required']">A kategória kiválasztása kötelező</p>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="difficulty">Nehézség</label>
+        <select 
+          id="difficulty" 
+          formControlName="difficulty"
+          [class.invalid]="questionForm.controls['difficulty'].invalid && questionForm.controls['difficulty'].touched"
+        >
+          <option *ngFor="let difficulty of difficulties" [value]="difficulty.value">{{ difficulty.label }}</option>
+        </select>
+        <div *ngIf="questionForm.controls['difficulty'].invalid && questionForm.controls['difficulty'].touched" class="error-hint">
+          <p *ngIf="questionForm.controls['difficulty'].errors?.['required']">A nehézségi szint kiválasztása kötelező</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="options-section">
+      <div class="section-header">
+        <h3>Válaszlehetőségek</h3>
+        <button type="button" class="add-option-button" (click)="addOption()">+ Válasz hozzáadása</button>
+      </div>
+      
+      <div class="options-list" formArrayName="options">
+        <div *ngFor="let option of options.controls; let i = index" [formGroupName]="i" class="option-item">
+          <div class="option-input">
+            <input 
+              type="text" 
+              formControlName="text" 
+              placeholder="Válaszlehetőség"
+              [class.invalid]="option.get('text')?.invalid && option.get('text')?.touched"
+            >
+            <div *ngIf="option.get('text')?.invalid && option.get('text')?.touched" class="error-hint">
+              <p *ngIf="option.get('text')?.errors?.['required']">A válasz szövege kötelező</p>
+              <p *ngIf="option.get('text')?.errors?.['minlength']">A válasznak legalább 1 karakterből kell állnia</p>
+            </div>
+          </div>
+          
+          <div class="option-actions">
+            <label class="correct-option">
+              <input 
+                type="radio" 
+                name="correctOption"
+                [checked]="isCorrectOption(i)" 
+                (click)="setCorrectOption(i)"
+              >
+              Helyes válasz
+            </label>
+            
+            <button 
+              type="button" 
+              class="remove-option" 
+              (click)="removeOption(i)" 
+              [disabled]="options.length <= 2"
+            >
+              Törlés
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="explanation">Magyarázat (opcionális)</label>
+      <textarea 
+        id="explanation" 
+        formControlName="explanation" 
+        rows="3"
+        placeholder="A helyes válasz magyarázata (a játékosok számára megjelenhet játék után)"
+      ></textarea>
+    </div>
+    
+    <div class="form-footer">
+      <button type="button" class="cancel-button" (click)="navigateBack()">Mégse</button>
+      <button type="submit" class="submit-button" [disabled]="isSubmitting || !hasCorrectOption()">
+        {{ editMode ? 'Mentés' : 'Létrehozás' }}
+      </button>
+    </div>
+  </form>
+</div>

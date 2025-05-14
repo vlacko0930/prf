@@ -1,0 +1,116 @@
+<div class="container">
+  <div class="row py-5 text-center">
+    <div class="col-md-12">
+      <h1 class="display-4">Üdvözlünk a Quiz Játék Platformon!</h1>
+      <p class="lead">Tedd próbára a tudásod különböző témakörökben!</p>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <!-- Játék kártya - csak nem-adminoknak -->
+    <div *ngIf="!isAdmin" class="col-md-4 mb-4 d-flex">
+      <div class="card h-100 w-100">
+        <div class="card-body text-center d-flex flex-column">
+          <div class="mb-4">
+            <i class="bi bi-controller fs-1 text-primary"></i>
+          </div>
+          <h3>Játssz</h3>
+          <p>Válassz a rendelkezésre álló kvízek közül és teszteld tudásod különböző témakörökben.</p>
+          <div class="mt-auto">
+            <a *ngIf="isLoggedIn" routerLink="/games" class="btn btn-primary">Játékok böngészése</a>
+            <a *ngIf="!isLoggedIn" routerLink="/login" class="btn btn-outline-primary">Bejelentkezés a játékhoz</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verseny kártya - mindenkinek -->
+    <div class="col-md-4 mb-4 d-flex">
+      <div class="card h-100 w-100">
+        <div class="card-body text-center d-flex flex-column">
+          <div class="mb-4">
+            <i class="bi bi-people fs-1 text-success"></i>
+          </div>
+          <h3>Versenyezz</h3>
+          <p>Hívd ki barátaidat vagy más játékosokat online kvíz versenyekre és kerülj fel a ranglista élére.</p>
+          <div class="mt-auto">
+            <a *ngIf="isLoggedIn" routerLink="/leaderboard" class="btn btn-success">Ranglista megtekintése</a>
+            <a *ngIf="!isLoggedIn" routerLink="/register" class="btn btn-outline-success">Regisztrálj most</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin kártya - csak adminoknak -->
+    <div *ngIf="isAdmin" class="col-md-4 mb-4 d-flex">
+      <div class="card h-100 w-100">
+        <div class="card-body text-center d-flex flex-column">
+          <div class="mb-4">
+            <i class="bi bi-pencil-square fs-1 text-info"></i>
+          </div>
+          <h3>Alkoss</h3>
+          <p>Ha admin jogosultságod van, hozz létre saját kvízeket és kérdéseket különböző témakörökben.</p>
+          <div class="mt-auto">
+            <a routerLink="/admin" class="btn btn-info">Admin felület</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Útmutató lépések - adminoknak ne jelenjen meg -->
+  <div *ngIf="!isAdmin" class="row py-5">
+    <div class="col-md-12 text-center">
+      <h2>Hogyan kezdj hozzá?</h2>
+      <hr class="my-4">
+    </div>
+    <div class="col-md-6 offset-md-3">
+      <div class="list-group">
+        <div class="list-group-item">
+          <div class="d-flex align-items-center">
+            <div class="me-3 bg-primary text-white rounded-circle p-3">1</div>
+            <div>
+              <h5 class="mb-1">Regisztrálj vagy jelentkezz be</h5>
+              <p class="mb-1">Hozz létre egy fiókot vagy jelentkezz be a meglévő fiókoddal.</p>
+            </div>
+          </div>
+        </div>
+        <div class="list-group-item">
+          <div class="d-flex align-items-center">
+            <div class="me-3 bg-primary text-white rounded-circle p-3">2</div>
+            <div>
+              <h5 class="mb-1">Válassz kvízt</h5>
+              <p class="mb-1">Böngéssz a rendelkezésre álló kvízek között és válaszd ki a neked tetszőt.</p>
+            </div>
+          </div>
+        </div>
+        <div class="list-group-item">
+          <div class="d-flex align-items-center">
+            <div class="me-3 bg-primary text-white rounded-circle p-3">3</div>
+            <div>
+              <h5 class="mb-1">Játssz és szerezz pontokat</h5>
+              <p class="mb-1">Válaszolj a kérdésekre, szerezz pontokat és vesd össze eredményeidet másokkal.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-4 text-center">
+        <a *ngIf="!isLoggedIn" routerLink="/register" class="btn btn-lg btn-primary">Regisztrálj és kezdj játszani</a>
+        <a *ngIf="isLoggedIn" routerLink="/games" class="btn btn-lg btn-primary">Kezdj játszani</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Admin üdvözlő szekció - csak adminoknak -->
+  <div *ngIf="isAdmin" class="row py-5">
+    <div class="col-md-12 text-center">
+      <h2>Admin Vezérlőpult</h2>
+      <hr class="my-4">
+      <p class="lead">Adminként létrehozhatsz és kezelhetsz kvízeket, kérdéseket és felhasználókat.</p>
+      <div class="mt-4">
+        <a routerLink="/admin" class="btn btn-lg btn-info">Admin irányítópultra</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,154 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Profil adatok</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Betöltés...</span>
+            </div>
+          </div>
+
+          <div *ngIf="error" class="alert alert-danger">
+            {{ error }}
+          </div>
+
+          <div *ngIf="success" class="alert alert-success">
+            {{ success }}
+          </div>
+
+          <form *ngIf="!loading && user" #profileForm="ngForm" (ngSubmit)="onSubmit(profileForm)">
+            <div class="mb-3">
+              <label for="username" class="form-label">Felhasználónév</label>
+              <input 
+                type="text" 
+                id="username" 
+                name="username" 
+                class="form-control" 
+                [(ngModel)]="user.username" 
+                required 
+                minlength="3"
+                #usernameInput="ngModel">
+              <div class="text-danger" *ngIf="usernameInput.invalid && (usernameInput.dirty || usernameInput.touched)">
+                <div *ngIf="usernameInput.errors?.['required']">A felhasználónév megadása kötelező.</div>
+                <div *ngIf="usernameInput.errors?.['minlength']">A felhasználónévnek legalább 3 karakter hosszúnak kell lennie.</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email cím</label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="form-control" 
+                [(ngModel)]="user.email" 
+                required 
+                email
+                #emailInput="ngModel">
+              <div class="text-danger" *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
+                <div *ngIf="emailInput.errors?.['required']">Az email cím megadása kötelező.</div>
+                <div *ngIf="emailInput.errors?.['email']">Kérjük, adj meg egy érvényes email címet.</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="role" class="form-label">Szerepkör</label>
+              <input 
+                type="text" 
+                id="role" 
+                name="role" 
+                class="form-control" 
+                [value]="user.role === 'admin' ? 'Adminisztrátor' : 'Játékos'" 
+                readonly>
+            </div>
+
+            <div class="mb-3">
+              <label for="score" class="form-label">Pontszám</label>
+              <input 
+                type="number" 
+                id="score" 
+                name="score" 
+                class="form-control" 
+                [value]="user.score" 
+                readonly>
+            </div>
+
+            <div class="mb-3">
+              <label for="newPassword" class="form-label">Új jelszó (csak ha változtatni szeretnél)</label>
+              <input 
+                type="password" 
+                id="newPassword" 
+                name="newPassword" 
+                class="form-control" 
+                [(ngModel)]="newPassword" 
+                minlength="6"
+                #newPasswordInput="ngModel">
+              <div class="text-danger" *ngIf="newPasswordInput.invalid && (newPasswordInput.dirty || newPasswordInput.touched)">
+                <div *ngIf="newPasswordInput.errors?.['minlength']">A jelszónak legalább 6 karakter hosszúnak kell lennie.</div>
+              </div>
+            </div>
+
+            <div class="mb-3" *ngIf="newPassword">
+              <label for="confirmPassword" class="form-label">Jelszó megerősítése</label>
+              <input 
+                type="password" 
+                id="confirmPassword" 
+                name="confirmPassword" 
+                class="form-control" 
+                [(ngModel)]="confirmPassword" 
+                required
+                #confirmPasswordInput="ngModel">
+              <div class="text-danger" *ngIf="newPassword && newPassword !== confirmPassword">
+                A jelszavaknak egyezniük kell.
+              </div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-primary" 
+                [disabled]="profileForm.invalid || updating || (newPassword && newPassword !== confirmPassword)">
+                <span *ngIf="updating" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Adatok mentése
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mt-4" *ngIf="!loading && user && user.games && user.games.length > 0">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Játékok történet</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Játék neve</th>
+                  <th>Státusz</th>
+                  <th>Eredmény</th>
+                  <th>Művelet</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let game of user!.games || []">
+                  <td>{{ game.title }}</td>
+                  <td>{{ getGameStatusText(game.status) }}</td>
+                  <td>{{ getGameScore(game) }}</td>
+                  <td>
+                    <a [routerLink]="['/games', game._id]" class="btn btn-sm btn-primary">Részletek</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

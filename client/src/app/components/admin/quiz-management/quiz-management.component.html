@@ -1,0 +1,68 @@
+<div class="quiz-management">
+  <h1>Kvízek kezelése</h1>
+  
+  <div class="controls">
+    <div class="search-box">
+      <input 
+        type="text" 
+        placeholder="Keresés cím vagy leírás alapján" 
+        [(ngModel)]="searchTerm" 
+        (input)="filterQuizzes()"
+      >
+    </div>
+    <div class="action-buttons">
+      <button class="reload-button" (click)="loadQuizzes()">Frissítés</button>
+      <a [routerLink]="['/admin/quizzes/create']" class="create-button">+ Új kvíz</a>
+    </div>
+  </div>
+  
+  <div class="quizzes-container">
+    <div *ngIf="isLoading" class="loading">
+      <p>Betöltés...</p>
+    </div>
+    
+    <div *ngIf="error" class="error-message">
+      <p>{{ error }}</p>
+    </div>
+    
+    <div *ngIf="!isLoading && !error && filteredQuizzes.length === 0" class="no-results">
+      <p>Nincs találat</p>
+    </div>
+    
+    <div class="quizzes-grid justify-content-center" *ngIf="!isLoading && filteredQuizzes.length > 0">
+      <div class="quiz-card" *ngFor="let quiz of filteredQuizzes">
+        <div class="quiz-header">
+          <h3>{{ quiz.title }}</h3>
+        </div>
+        
+        <div class="quiz-content d-flex flex-column">
+          <p class="description">{{ (quiz.description || '') | slice:0:150 }}{{ quiz.description && quiz.description.length > 150 ? '...' : '' }}</p>
+          
+          <div class="quiz-stats">
+            <div class="stat-item">
+              <span class="label">Kategória:</span>
+              <span>{{ quiz.category || 'Nincs kategória' }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">Kérdések:</span>
+              <span>{{ quiz.questions.length || 0 }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">Időkorlát:</span>
+              <span>{{ quiz.timeLimit ? (quiz.timeLimit + ' perc') : 'Nincs' }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">Létrehozva:</span>
+              <span>{{ quiz.createdAt | date:'yyyy.MM.dd.' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="quiz-actions">
+          <a [routerLink]="['/admin/quizzes/edit', quiz._id]" class="edit-button">Szerkesztés</a>
+          <button class="delete-button" (click)="deleteQuiz(quiz, $event)">Törlés</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

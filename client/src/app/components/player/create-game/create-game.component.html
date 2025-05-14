@@ -1,0 +1,152 @@
+<div class="container py-4">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h1 class="h4 mb-0">Új játék létrehozása</h1>
+        </div>
+        
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Betöltés...</span>
+            </div>
+            <p class="mt-2">Kvízek betöltése...</p>
+          </div>
+          
+          <div *ngIf="error" class="alert alert-danger">
+            {{ error }}
+          </div>
+          
+          <form #gameForm="ngForm" (ngSubmit)="onSubmit(gameForm)" *ngIf="!loading">
+            <div class="mb-3">
+              <label for="title" class="form-label">Játék címe</label>
+              <input 
+                type="text" 
+                id="title" 
+                name="title" 
+                class="form-control" 
+                placeholder="Add meg a játék címét" 
+                [(ngModel)]="gameData.title" 
+                required 
+                minlength="3"
+                #titleInput="ngModel">
+              <div class="text-danger" *ngIf="titleInput.invalid && (titleInput.dirty || titleInput.touched)">
+                <div *ngIf="titleInput.errors?.['required']">A játék címe kötelező.</div>
+                <div *ngIf="titleInput.errors?.['minlength']">A címnek legalább 3 karakter hosszúnak kell lennie.</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="quiz" class="form-label">Kvíz kiválasztása</label>
+              <select 
+                id="quiz" 
+                name="quiz" 
+                class="form-select" 
+                [(ngModel)]="gameData.quizId" 
+                required
+                #quizInput="ngModel">
+                <option [value]="null" disabled>Válassz kvízt...</option>
+                <option *ngFor="let quiz of quizzes" [value]="quiz._id">{{ quiz.title }} ({{ quiz.questions.length }} kérdés)</option>
+              </select>
+              <div class="text-danger" *ngIf="quizInput.invalid && (quizInput.dirty || quizInput.touched)">
+                <div *ngIf="quizInput.errors?.['required']">Kvíz kiválasztása kötelező.</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="maxPlayers" class="form-label">Maximum játékosok száma</label>
+              <input 
+                type="number" 
+                id="maxPlayers" 
+                name="maxPlayers" 
+                class="form-control" 
+                [(ngModel)]="gameData.maxPlayers" 
+                min="1"
+                max="50"
+                #maxPlayersInput="ngModel">
+              <div class="text-danger" *ngIf="maxPlayersInput.invalid && (maxPlayersInput.dirty || maxPlayersInput.touched)">
+                <div *ngIf="maxPlayersInput.errors?.['min']">Legalább 1 játékosnak kell lennie.</div>
+                <div *ngIf="maxPlayersInput.errors?.['max']">Maximum 50 játékos vehet részt.</div>
+              </div>
+              <div class="form-text">A maximális játékosok száma, akik csatlakozhatnak a játékhoz.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="timeLimit" class="form-label">Időkorlát (másodperc)</label>
+              <input 
+                type="number" 
+                id="timeLimit" 
+                name="timeLimit" 
+                class="form-control" 
+                [(ngModel)]="gameData.timeLimit" 
+                min="10"
+                max="120"
+                #timeLimitInput="ngModel">
+              <div class="text-danger" *ngIf="timeLimitInput.invalid && (timeLimitInput.dirty || timeLimitInput.touched)">
+                <div *ngIf="timeLimitInput.errors?.['min']">Az időkorlát legalább 10 másodperc kell hogy legyen.</div>
+                <div *ngIf="timeLimitInput.errors?.['max']">Az időkorlát legfeljebb 120 másodperc lehet.</div>
+              </div>
+              <div class="form-text">Az idő másodpercben, ami alatt egy kérdést meg kell válaszolni.</div>
+            </div>
+
+            <div class="mb-4">
+              <div class="form-check">
+                <input 
+                  type="checkbox" 
+                  id="useCustomTimes" 
+                  name="useCustomTimes" 
+                  class="form-check-input" 
+                  [(ngModel)]="gameData.useCustomTimes">
+                <label for="useCustomTimes" class="form-check-label">Egyedi kezdési és befejezési idő megadása</label>
+              </div>
+            </div>
+
+            <div class="row mb-3" *ngIf="gameData.useCustomTimes">
+              <div class="col">
+                <label for="startTime" class="form-label">Kezdési idő</label>
+                <input 
+                  type="datetime-local" 
+                  id="startTime" 
+                  name="startTime" 
+                  class="form-control" 
+                  [(ngModel)]="gameData.startTime" 
+                  [min]="minStartTime"
+                  (change)="onStartTimeChange()"
+                  #startTimeInput="ngModel">
+                <div class="text-danger" *ngIf="startTimeInput.invalid && (startTimeInput.dirty || startTimeInput.touched)">
+                  <div *ngIf="startTimeInput.errors?.['min']">A kezdési idő nem lehet korábbi, mint most.</div>
+                </div>
+              </div>
+              
+              <div class="col">
+                <label for="endTime" class="form-label">Befejezési idő</label>
+                <input 
+                  type="datetime-local" 
+                  id="endTime" 
+                  name="endTime" 
+                  class="form-control" 
+                  [(ngModel)]="gameData.endTime"
+                  [min]="gameData.startTime"
+                  #endTimeInput="ngModel">
+                <div class="text-danger" *ngIf="endTimeInput.invalid && (endTimeInput.dirty || endTimeInput.touched)">
+                  <div *ngIf="endTimeInput.errors?.['min']">A befejezési idő nem lehet korábbi, mint a kezdési idő.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid">
+              <button 
+                type="submit" 
+                class="btn btn-primary" 
+                [disabled]="gameForm.invalid || creating">
+                <span *ngIf="creating" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Játék létrehozása
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

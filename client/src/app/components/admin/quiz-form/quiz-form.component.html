@@ -1,0 +1,169 @@
+<div class="quiz-form">
+  <div class="form-header">
+    <button class="back-button" (click)="navigateBack()">← Vissza</button>
+    <h1>{{ editMode ? 'Kvíz szerkesztése' : 'Új kvíz létrehozása' }}</h1>
+  </div>
+  
+  <div *ngIf="isLoading" class="loading">
+    <p>Betöltés...</p>
+  </div>
+  
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+  
+  <div *ngIf="successMessage" class="success-message">
+    <p>{{ successMessage }}</p>
+  </div>
+  
+  <form *ngIf="!isLoading" [formGroup]="quizForm" (ngSubmit)="onSubmit()">
+    <div class="form-content">
+      <div class="form-left">
+        <h2>Kvíz adatai</h2>
+        
+        <div class="form-group">
+          <label for="title">Cím</label>
+          <input 
+            type="text" 
+            id="title" 
+            formControlName="title" 
+            [class.invalid]="quizForm.controls['title'].invalid && quizForm.controls['title'].touched"
+          >
+          <div *ngIf="quizForm.controls['title'].invalid && quizForm.controls['title'].touched" class="error-hint">
+            <p *ngIf="quizForm.controls['title'].errors?.['required']">A cím megadása kötelező</p>
+            <p *ngIf="quizForm.controls['title'].errors?.['minlength']">A címnek legalább 3 karakterből kell állnia</p>
+            <p *ngIf="quizForm.controls['title'].errors?.['maxlength']">A cím nem lehet hosszabb 100 karakternél</p>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Leírás</label>
+          <textarea 
+            id="description" 
+            formControlName="description" 
+            rows="4"
+            [class.invalid]="quizForm.controls['description'].invalid && quizForm.controls['description'].touched"
+          ></textarea>
+          <div *ngIf="quizForm.controls['description'].invalid && quizForm.controls['description'].touched" class="error-hint">
+            <p *ngIf="quizForm.controls['description'].errors?.['required']">A leírás megadása kötelező</p>
+            <p *ngIf="quizForm.controls['description'].errors?.['minlength']">A leírásnak legalább 10 karakterből kell állnia</p>
+            <p *ngIf="quizForm.controls['description'].errors?.['maxlength']">A leírás nem lehet hosszabb 500 karakternél</p>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="category">Kategória</label>
+          <select 
+            id="category" 
+            formControlName="category"
+            [class.invalid]="quizForm.controls['category'].invalid && quizForm.controls['category'].touched"
+          >
+            <option value="">Válassz kategóriát...</option>
+            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+          </select>
+          <div *ngIf="quizForm.controls['category'].invalid && quizForm.controls['category'].touched" class="error-hint">
+            <p *ngIf="quizForm.controls['category'].errors?.['required']">A kategória kiválasztása kötelező</p>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="difficulty">Nehézségi szint</label>
+          <select 
+            id="difficulty" 
+            formControlName="difficulty"
+            [class.invalid]="quizForm.controls['difficulty'].invalid && quizForm.controls['difficulty'].touched"
+          >
+            <option value="könnyű">Könnyű</option>
+            <option value="közepes">Közepes</option>
+            <option value="nehéz">Nehéz</option>
+          </select>
+          <div *ngIf="quizForm.controls['difficulty'].invalid && quizForm.controls['difficulty'].touched" class="error-hint">
+            <p *ngIf="quizForm.controls['difficulty'].errors?.['required']">A nehézségi szint kiválasztása kötelező</p>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="timeLimit">Időkorlát (perc)</label>
+          <input 
+            type="number" 
+            id="timeLimit" 
+            formControlName="timeLimit" 
+            min="1"
+            max="60"
+            [class.invalid]="quizForm.controls['timeLimit'].invalid && quizForm.controls['timeLimit'].touched"
+          >
+          <div *ngIf="quizForm.controls['timeLimit'].invalid && quizForm.controls['timeLimit'].touched" class="error-hint">
+            <p *ngIf="quizForm.controls['timeLimit'].errors?.['min']">Az időkorlátnak legalább 1 percnek kell lennie.</p>
+            <p *ngIf="quizForm.controls['timeLimit'].errors?.['max']">Az időkorlát maximum 60 perc lehet.</p>
+          </div>
+          <span class="hint">Opcionális. Ha nem adsz meg értéket, a kvíznek nem lesz időkorlátja.</span>
+        </div>
+      </div>
+      
+      <div class="form-right">
+        <h2>Kérdések</h2>
+        
+        <div class="questions-section">
+          <div class="selected-questions">
+            <h3>Kiválasztott kérdések ({{ selectedQuestions.length }})</h3>
+            
+            <div *ngIf="selectedQuestions.length === 0" class="no-questions">
+              <p>Még nincsenek kiválasztott kérdések. Válassz a lenti listából!</p>
+            </div>
+            
+            <div *ngIf="selectedQuestions.length > 0" class="questions-list">
+              <div *ngFor="let question of selectedQuestions; let i = index" class="question-item">
+                <div class="question-content">
+                  <div class="question-number">{{ i + 1 }}.</div>
+                  <div class="question-text">{{ question.text }}</div>
+                </div>
+                <div class="question-actions">
+                  <button type="button" class="move-button" (click)="moveQuestionUp(i)" [disabled]="i === 0">↑</button>
+                  <button type="button" class="move-button" (click)="moveQuestionDown(i)" [disabled]="i === selectedQuestions.length - 1">↓</button>
+                  <button type="button" class="remove-button" (click)="removeQuestion(question)">×</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="available-questions">
+            <h3>Elérhető kérdések</h3>
+            
+            <div class="search-box">
+              <input 
+                type="text" 
+                placeholder="Keresés a kérdések között..." 
+                [(ngModel)]="searchTerm" 
+                [ngModelOptions]="{standalone: true}" 
+                (input)="filterQuestions()"
+              >
+            </div>
+            
+            <div *ngIf="filteredQuestions.length === 0" class="no-questions">
+              <p>Nincs megjeleníthető kérdés.</p>
+            </div>
+            
+            <div *ngIf="filteredQuestions.length > 0" class="questions-list">
+              <div *ngFor="let question of filteredQuestions" class="question-item">
+                <div class="question-content">
+                  <div class="question-text">{{ question.text }}</div>
+                  <div class="question-category">{{ question.category || 'Nincs kategória' }}</div>
+                </div>
+                <div class="question-actions">
+                  <button type="button" class="add-button" (click)="addQuestion(question)">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-footer">
+      <button type="button" class="cancel-button" (click)="navigateBack()">Mégse</button>
+      <button type="button" class="submit-button" [disabled]="isSubmitting" (click)="onSubmitClicked($event)">
+        {{ editMode ? 'Mentés' : 'Létrehozás' }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,24 @@
+<div class="admin-dashboard">
+  <h1>Admin irányítópult</h1>
+  
+  <div class="stats-container">
+    <div class="stats-card">
+      <h3>Felhasználók</h3>
+      <div class="stats-number">{{ userCount }}</div>
+      <a routerLink="/admin/users">Kezelés</a>
+    </div>
+    
+    <div class="stats-card">
+      <h3>Kvízek</h3>
+      <div class="stats-number">{{ quizCount }}</div>
+      <a routerLink="/admin/quizzes">Kezelés</a>
+    </div>
+    
+    <div class="stats-card">
+      <h3>Kérdések</h3>
+      <div class="stats-number">{{ questionCount }}</div>
+      <a routerLink="/admin/questions">Kezelés</a>
+    </div>
+  </div>
+  
+</div>

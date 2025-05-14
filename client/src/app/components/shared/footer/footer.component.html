@@ -1,0 +1,37 @@
+<footer class="bg-dark text-white py-4 mt-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 mb-3 mb-md-0">
+        <h5>Quiz Játék</h5>
+        <p class="text-white-50">
+          Tedd próbára tudásodat különböző témakörökben, és versenyezz barátaiddal online!
+        </p>
+      </div>
+      <div class="col-md-4 mb-3 mb-md-0">
+        <h5>Navigáció</h5>
+        <ul class="list-unstyled">
+          <li><a routerLink="/" class="text-white">Főoldal</a></li>
+          <li *ngIf="!isAdmin"><a routerLink="/games" class="text-white">Játékok</a></li>
+          <li><a routerLink="/leaderboard" class="text-white">Ranglista</a></li>
+          <li *ngIf="isAdmin"><a routerLink="/admin" class="text-white">Admin felület</a></li>
+          <li><a routerLink="/profile" class="text-white">Profil</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Kapcsolat</h5>
+        <address class="text-white-50">
+          <strong>Quiz Játék Support</strong><br>
+          Email: support&#64;quizjatek.hu<br>
+          Telefon: +36 1 234 5678
+        </address>
+      </div>
+    </div>
+    <hr class="my-3 bg-secondary">
+    <div class="row">
+      <div class="col-md-6">
+        <p class="mb-0 text-white-50">&copy; {{ currentYear }} Quiz Játék. Minden jog fenntartva.</p>
+      </div>
+
+    </div>
+  </div>
+</footer>

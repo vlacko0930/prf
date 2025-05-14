@@ -1,0 +1,136 @@
+<div class="container my-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Betöltés jelző -->
+      <div *ngIf="loading" class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Betöltés...</span>
+        </div>
+        <p class="mt-2">Játék betöltése...</p>
+      </div>
+
+      <!-- Hiba üzenet -->
+      <div *ngIf="error" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+        <button class="btn btn-outline-danger btn-sm ms-2" (click)="goBack()">Vissza a játéklistához</button>
+      </div>
+
+      <!-- Játék lobby tartalom -->
+      <ng-container *ngIf="!loading && !error && game">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">{{ game.title }}</h3>
+            <button class="btn btn-sm btn-light" (click)="goBack()">
+              <i class="bi bi-arrow-left me-1"></i> Vissza
+            </button>
+          </div>
+
+          <div class="card-body">
+            <!-- Hiba üzenet a csatlakozás során -->
+            <div *ngIf="errorMessage" class="alert alert-danger mb-3">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+            </div>
+
+            <!-- Játék információk -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="card h-100">
+                  <div class="card-header bg-light">
+                    <h5 class="mb-0">Játék információk</h5>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush">
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Kvíz:</span>
+                        <span>{{ game.quiz?.title || 'N/A' }}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Játékosok:</span>
+                        <span>{{ playerCount }} {{ game.maxPlayers ? '/ ' + game.maxPlayers : '' }}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Státusz:</span>
+                        <span class="badge" [ngClass]="{'bg-warning text-dark': game.status === 'pending', 'bg-success': game.status === 'active', 'bg-info': game.status === 'completed'}">
+                          {{ game.status === 'pending' ? 'Várakozás' : (game.status === 'active' ? 'Aktív' : 'Befejezett') }}
+                        </span>
+                      </li>
+                      <li *ngIf="game.startTime" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Kezdési idő:</span>
+                        <span>{{ game.startTime | date:'yyyy. MM. dd. HH:mm:ss' }}</span>
+                      </li>
+                      <li *ngIf="countdown !== null" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Kezdésig hátralévő idő:</span>
+                        <span class="badge bg-danger">{{ formatCountdown() }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="card h-100">
+                  <div class="card-header bg-light">
+                    <h5 class="mb-0">Játékosok</h5>
+                  </div>
+                  <div class="card-body">
+                    <div *ngIf="game.players && game.players.length > 0; else noPlayers">
+                      <ul class="list-group">
+                        <li *ngFor="let player of game.players" class="list-group-item">
+                          <div class="d-flex align-items-center">
+                            <i class="bi bi-person-fill me-2"></i>
+                            <span>
+                              {{ 
+                                (player && typeof player !== 'string' && player.user && player.user.username) 
+                                  ? player.user.username 
+                                  : (player && typeof player === 'string' ? 'Játékos' : player.name || 'Játékos')
+                              }}
+                            </span>
+                            <span *ngIf="
+                              (typeof game.host === 'string' && typeof player === 'string' && player === game.host) || 
+                              (typeof game.host !== 'string' && typeof player !== 'string' && player.user && player.user._id === game.host?._id)
+                            " class="badge bg-primary ms-2">Házigazda</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                    <ng-template #noPlayers>
+                      <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i> Még senki nem csatlakozott a játékhoz.
+                      </div>
+                    </ng-template>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cselekvés gombok -->
+            <div class="d-flex justify-content-center">
+              <!-- Csatlakozás gomb, ha még nem csatlakozott -->
+              <button 
+                *ngIf="!joined && game.status === 'pending'" 
+                class="btn btn-primary me-2" 
+                (click)="joinGame()">
+                <i class="bi bi-controller me-1"></i> Csatlakozás a játékhoz
+              </button>
+
+              <!-- Játék indítása gomb a házigazdának -->
+              <button 
+                *ngIf="isHost && game.status === 'pending'" 
+                class="btn btn-success" 
+                (click)="startGame()" 
+                [disabled]="playerCount < 1">
+                <i class="bi bi-play-fill me-1"></i> Játék indítása
+              </button>
+
+              <!-- Várakozás üzenet, ha már csatlakozott -->
+              <div *ngIf="joined && !isHost && game.status === 'pending'" class="alert alert-info mb-0">
+                <i class="bi bi-clock me-2"></i> Várunk a játék indítására...
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

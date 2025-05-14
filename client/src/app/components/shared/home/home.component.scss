@@ -1,0 +1,41 @@
+.container {
+  padding: 20px 0;
+  
+  .row {
+    &.justify-content-center {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    
+    .col-md-4 {
+      display: flex;
+      
+      .card {
+        width: 100%;
+        height: 100%;
+        transition: transform 0.2s, box-shadow 0.2s;
+        
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-body {
+          display: flex;
+          flex-direction: column;
+          
+          .mt-auto {
+            margin-top: auto;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .container .row .col-md-4 {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
