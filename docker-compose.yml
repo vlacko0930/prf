@@ -31,6 +31,49 @@ services:
       - JWT_SECRET=kvizjatek_titkos_kulcs_2025
       - CLIENT_URL=http://localhost:80
 
+  seed-init:
+    image: alpine:latest
+    container_name: seed-init
+    volumes:
+      - seed_flag:/seed_flag
+    command: >
+      sh -c "if [ ! -f /seed_flag/seed_completed ]; then
+             echo 'Első indítás, seed szükséges';
+             touch /seed_flag/seed_needed; 
+             else echo 'Seed már egyszer futott, nem szükséges újra'; 
+             fi"
+    networks:
+      - app-network
+
+  seed:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: seed
+    restart: "no"
+    volumes:
+      - seed_flag:/seed_flag
+    depends_on:
+      - mongodb
+      - server
+      - seed-init
+    networks:
+      - app-network
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/quiz_game
+      - JWT_SECRET=kvizjatek_titkos_kulcs_2025
+      - NODE_ENV=development
+    command: >
+      sh -c "if [ -f /seed_flag/seed_needed ]; then
+             echo 'Első indítás, futtatom a seed parancsot...';
+             node dist/seed.js;
+             rm /seed_flag/seed_needed;
+             touch /seed_flag/seed_completed;
+             echo 'Seed befejezve, következő indításkor már nem fog futni';
+             else echo 'Seed kihagyva, már futott korábban';
+             exit 0;
+             fi"
+
   client:
     build:
       context: ./client
@@ -50,3 +93,4 @@ networks:
 
 volumes:
   mongodb_data:
+  seed_flag:
